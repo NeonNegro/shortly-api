@@ -37,3 +37,37 @@ export async function getUser(req, res) {
     return res.sendStatus(500);
   }
 }
+
+export async function getUserById(req, res) {
+
+  const { id } = req.params;
+
+  try {
+
+    const result = await connection.query(`
+    SELECT u.id, u.name, ur.id, ur."shortUrl", ur.url, ur."visitCount", sub.total 
+    FROM users u
+    JOIN urls ur ON u.id=ur."userId"
+    JOIN (
+        SELECT ur2."userId" AS "subUserId", SUM(ur2."visitCount") AS total
+        FROM urls ur2
+        WHERE ur2."userId"=$1
+        GROUP BY ur2."userId"
+    ) AS sub ON sub."subUserId"=ur."userId"
+    WHERE ur."userId"=$1
+    `, [id]);
+
+
+    result.rows.map(r =>{
+      return ([]
+      )
+    });
+
+
+
+    res.send(user);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+}
