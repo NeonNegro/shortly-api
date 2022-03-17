@@ -29,7 +29,6 @@ export async function getUrl(req,res){
 export async function postUrl(req, res){
 
     const { link } = req.body;
-    console.log(req.body);
     const { user } = res.locals;
 
     const shortenUrl = uuid().split('-')[0];
@@ -44,6 +43,38 @@ export async function postUrl(req, res){
 
         res.status(201).send({ shortenUrl });
 
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+}
+
+export async function deleteUrl(req, res){
+    const { id } = req.params;
+    const {user} = res.locals;
+
+    try {
+
+        const result = await connection.query(`
+            SELECT id, "userId"
+            FROM urls
+            WHERE id=$1
+
+        `,[id]);
+
+        if(result.rowCount === 0)
+            return res.sendStatus(404);
+
+        if(result.rows[0].userId !== user.id)
+            return res.send(401);
+
+
+        await connection.query(`
+            DELETE FROM urls
+            WHERE id=$1
+        `, [id]);
+        res.sendStatus(204);
+        
     } catch (err) {
         console.log(err);
         res.sendStatus(500);
