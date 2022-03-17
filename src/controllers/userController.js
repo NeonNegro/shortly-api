@@ -28,6 +28,8 @@ export async function createUser(req, res) {
 export async function getUser(req, res) {
   const { user } = res.locals;
 
+  user.shortenedUrls = [];
+
   try {
     res.send(user);
   } catch (error) {
